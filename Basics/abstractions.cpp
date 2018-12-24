@@ -448,7 +448,175 @@ public:
     Shape& operator=(const Shape&) =delete;
     Shape(Shape&&) =delete; // no move
     Shape& operator=(Shape&&) =delete; 
-    
+
     ~Shape();
 // ...
 };
+
+
+
+//~~~~~~~~Templates~~~~~~~~~~~
+// A template is a class or a function that we parameterize with a set of types or values.
+// We use templates to represent concepts that are best understood as something very general 
+// from which we can generate specific types and functions by specifying arguments
+// Example, vector<double> or vector<int>
+
+// Vector of any type T
+
+template<typename T>
+class Vector {
+private:
+    T∗ elem; // elem points to an array of sz elements of type T
+    int sz;
+public:
+    Vector(int s); // constructor: establish invariant, acquire resources
+    ~Vector() { delete[] elem; } // destructor: release resources
+
+    // ... copy and move operations ...
+
+    T& operator[](int i);
+    int size() const { return sz; }
+};
+
+template<typename T>
+Vector<T>::Vector(int s)
+{
+    if (s<0) throw Negative_siz e{};
+    elem = new T[s];
+    sz = s;
+}
+
+template<typename T>
+const T& Vector<T>::operator[](int i) const
+{
+    if (i<0 || size()<=i)
+        throw out_of_rang e{"Vector::operator[]"};
+    return elem[i];
+}
+
+// Usage examples
+Vector<char> vc(200); // vector of 200 characters
+Vector<string> vs(17); // vector of 17 strings
+Vector<list<int>> vli(45); // vector of 45 lists of integers
+
+void write(const Vector<string>& vs)
+{
+    for (int i = 0; i!=vs.size(); ++i)
+        cout << vs[i] << '\n';
+}
+
+// Function Templates
+
+// Allows writing generic algorithms
+// Function that calculates the sum of the element values of any container type
+template<typename Container, typename Value>
+Value sum(const Container& c, Value v)
+{
+    for (auto x : c)
+        v+=x;
+    return v;
+}
+
+void user(Vector<int>& vi, std::list<double>& ld, std::vector<complex<double>>& vc)
+{
+    int x = sum(vi,0);  // the sum of a vector of ints (add ints)
+    double d = sum(vi,0.0); // the sum of a vector of ints (add doubles to allow for large numbers)
+    double dd = sum(ld,0.0);    // the sum of a list of doubles
+    auto z = sum(vc,complex<double>{}); // the sum of a vector of complex<double>
+                                        // the initial value is {0.0,0.0}
+}
+
+
+
+// Function objects (Also knowns as functors)
+
+
+// Used to define objects that can be called like functions
+
+template<typename T>
+class Less_than {
+    const T val;    // value to compare against
+public:
+    Less_than(const T& v) :val(v) { }
+    bool operator()(const T& x) const { return x<val; } // call operator
+};
+
+// The function called operator() implements the function call
+
+// Create function objects
+Less_than<int> lti {42};    // lti(i) will compare i to 42 using < (i<42)
+Less_than<string> lts {"Backus"}; // lts(s) will compare s to "Backus" using < (s<"Backus")
+
+void fct(int n, const string & s)
+{
+    bool b1 = lti(n);   // true if n<42
+    bool b2 = lts(s);   // true if s<"Backus"
+    // ...
+}
+
+// Functors are used to implement predicates (returns true or false) to control behavior  of algorithms
+// Example count elements in a container if condition is true
+template<typename C, typename P>
+int count(const C& c, P pred)
+{
+    int cnt = 0;
+    for (const auto& x : c)
+        if (pred(x))
+            ++cnt;
+    return cnt;
+}
+
+void f(const Vector<int>& vec, const list<string>& lst, int x, const string& s)
+{
+    cout << "number of values less than " << x << ": " << count(vec,Less_than<int>{x})  << '\n';
+    cout << "number of values less than " << s  << ": " << count(lst,Less_than<string>{s})  << '\n';
+}
+
+// Less_than<int>{x} constructs an object for which the call operator compares to the int called x
+// Function objects carry the value with them. Saves on writing separate functions for each value and type
+
+// Lambda expressions - implicitly generate function objects
+
+void f(const Vector<int>& vec, const list<string>& lst, int x, const string& s)
+{
+    cout << "number of values less than " << x  << ": " << count(vec,[&x](int a){ return a<x; }) << '\n';
+    cout << "number of values less than " << s << ": " << count(lst,[&x](const string& a){ return a<s; }) << '\n';
+}
+
+// [&x](int a){ return a<x; } is called a lambda expression and generates a function object
+// [&x] is a capture list specifying that local names used (such as x ) will be passed by reference
+// x is the state, and a is the input to the function object
+// Use lamba expressions only to generate simple function objects
+
+// Use of lambdas and templates to make the drawing code seen earlier generic
+
+// Apply operation to all elements of a container
+// class indicates that C and oper have to be classes. Interchangable in C++17
+template<class C, class Oper>
+void for_all(C& c, Oper op) // assume that C is a container of pointers
+{
+    for (auto& x : c)
+        op(∗x); // pass op() a reference to each element pointed to
+}
+
+void user()
+{
+    vector<unique_ptr<Shape>> v;
+    while (cin)
+        v.push_back(read_shape(cin));
+    for_all(v,[](Shape& s){ s.draw(); }); // draw_all()
+    for_all(v,[](Shape& s){ s.rotate(45); }); // rotate_all(45)
+}
+
+// Aliases - using keyword
+
+// using size_t = unsigned int; 
+// Similar to typedef
+// Defining new temmplate by binding some or all template arguments
+template<typename Key, typename Value>
+class Map {
+// ...
+};
+template<typename Value>
+using String_map = Map<string,Value>;
+String_map<int> m; // m is a Map<str ing,int>
