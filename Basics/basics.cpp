@@ -15,9 +15,6 @@ int main()
     
 }
 
-
-
-
 // All executable code placed in functions and called indirectly or directly from main() 
 #include <iostream>
 using namespace std;
@@ -227,9 +224,8 @@ int count_x(char∗ p, char x) // p is a C style string
 
 
 
-//~~~~User Defined Types~~~~~~~~~~~
+//~~~~User Defined Types - Structures~~~~~~~~~~~
 
-// Structures
 struct Vector {
     int sz; // number of elements
     double∗ elem; // pointer to elements
@@ -268,5 +264,157 @@ void f(Vector v, Vector& rv, Vector∗ pv)
     int i1 = v.sz; // access through name
     int i2 = rv.sz; // access through reference
     int i4 = pv−>sz; // access through pointer
+}
+
+
+//~~~~~~User Defined Types - Claasses~~~~~
+
+// Goal - to separate interface to a type, and its implementation
+// Interface defined by public membes of a class
+// Private members are only acceessible through the interface
+
+class Vector {
+public:
+    Vector(int s) :elem{new double[s]}, sz{s} { } // Constructor
+    double& operator[](int i) { return elem[i]; } // Operator overloading
+    int size() { return sz; }
+private:
+    double∗ elem; // pointer to the elements
+    int sz; // the number of elements
+};
+
+// Define a variable of type Vector
+Vector v(6);
+
+// members elem, and sz are only accessbile through public interface
+double read_and_sum(int s)
+{
+    Vector v(s); // make a vector of s elements
+    for (int i=0; i!=v.siz e(); ++i)
+        cin>>v[i]; // read into elements
+    double sum = 0;
+    for (int i=0; i!=v.siz e(); ++i)
+        sum+=v[i]; // take the sum of the elements
+    return sum;
+}
+
+// A ‘‘function’’ with the same name as its class is called a constructor
+// Constructor is guaranteed to initialize the objects of its class
+
+//~~~~~~User Defined Types - Enumberations~~~~~~
+
+// User defined type used to enumberate values
+enum class Color { red, blue , green };
+enum class Traffic_light { green, yellow, red };
+
+Color col = Color::red;
+Traffic_light light = Traffic_light::red;
+
+// The class after the enum specifies that an enumeration is strongly typed and that its enumerators are scoped
+
+Color x = red; // error : which red?
+Color y = Traffic_light::red; // error : that red is not a Color
+Color z = Color::red; // OK
+int i = Color::red; // error : Color ::red is not an int
+Color c = 2; // error : 2 is not a Color
+
+// Defining operators for enums
+Traffic_light& operator++(Traffic_light& t)
+// prefix increment: ++
+{
+    switch (t) {
+    case Traffic_light::green:  return t=Traffic_light::yellow;
+    case Traffic_light::yellow: return t=Traffic_light::red;
+    case Traffic_light::red:    return t=Traffic_light::green;  
+    }
+}
+Traffic_light next = ++light;   // next becomes Traffic_light::green
+
+//~~~~~~~Modularity~~~~~~~~~~~~
+// Declaration and definitions in separate files 
+
+// Namespaces - as a mechanism for expressing that some declarations belong together 
+// Their names shouldn’t clash with other names
+namespace My_code {
+    class complex { /* ... */ };
+    complex sqrt(complex);
+    // ...
+    int main();
+}
+
+int My_code::main()
+{
+    complex z {1,2};
+    auto z2 = sqrt(z);
+    std::cout << '{' << z2.real() << ',' << z2.imag() << "}\n";
+    // ...
+};
+
+int main()
+{
+    return My_code::main();
+}
+
+// Standard library in namespace std
+
+//~~~~~Exceptions~~~~~~~~
+
+// Exception handling is used wheen one part of a program detects a problem that it cannot resolve
+// Detecting raises an exception which is handled by another part
+// throw - deteting part uses to raise an exceptoin
+// try - exception thrown from try blocks are passed to exception handlers
+// catch - exception handler. Stack is unwound
+// exception classes are used to pass informattion from throw to associated catch
+
+try {
+        // program statements
+} catch (exception_declaration) {
+    // handler statements
+} catch (exception declaration) {
+    // handler statements
+}
+
+// If no handler exists execution is transfered to a library function named terminate that stops the program
+// terminate unwinds the stack 
+// stdexcept header defines several general-purpose exception classes
+// Examples are out_of_range, invalid_argument, logic_error, runtime_error, length_error, bad_alloc 
+
+double& Vector::operator[](int i)
+{
+    if (i<0 || size()<=i) throw out_of_rang e{"Vector::operator[]"};
+        return elem[i];
+}
+
+void f(Vector& v)
+{
+    // ...
+    try { // exceptions here are handled by the handler defined below
+        v[v.siz e()] = 7; // tr y to access beyond the end of v
+    }
+    catch (out_of_rang e) { // oops: out_of_range error
+        // ... handle range error ...
+    }
+    // ...
+}
+
+// Another example
+Vector::Vector(int s)
+{
+    if (s<0) throw length_error{};
+    elem = new double[s];
+    sz = s;
+}
+
+void test()
+{
+    try {
+        Vector v(−27);
+    }
+    catch (std::length_error) {
+    // handle negative size
+    }
+    catch (std::bad_alloc) {
+    // handle memory exhaustion
+    }
 }
 
