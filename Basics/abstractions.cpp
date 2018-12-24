@@ -346,3 +346,109 @@ void test(complex z1)
 
 // z1 , z2 , and z3 have the same value because both the assignment and the initialization copied both members.
 
+
+// Copying containers
+
+// Effect of shallow copy when resources are accessed  through a pointer
+void bad_copy(Vector v1)
+{
+    Vector v2 = v1; // copy v1’s representation into v2
+    v1[0] = 2;  // v2[0] is now also 2!
+    v2[1] = 3;  // v1[1] is now also 3!
+}
+
+// Copy constructor and copy assignment
+class Vector {
+private:
+    double∗ elem; // elem points to an array of sz doubles
+    int sz;
+public:
+    Vector(int s);  // constructor: establish invariant, acquire resources
+    ~Vector() { delete[] elem; }    // destructor: release resources
+    Vector(const Vector& a); // copy constructor
+    Vector& operator=(const Vector& a); //copy assignment
+    double& operator[](int i);
+    int size() const;
+};
+
+// Deep copy by allocating space and then copying
+Vector::Vector(const Vector& a) : elem{new double[sz]}, sz{a.sz}
+{
+    for (int i=0; i!=sz; ++i)
+        elem[i] = a.elem[i];
+}
+
+// Deep copy. Also needs to delete existing elements of LHS
+Vector& Vector::operator=(const Vector& a)
+{
+    double∗ p = new double[a.sz];
+    for (int i=0; i!=a.sz; ++i)
+        p[i] = a.elem[i];
+    delete[] elem;  // delete old elements
+    elem = p;
+    sz = a.sz;
+    return ∗this;
+}
+
+// Move constructor and move assignment
+Vector operator+(const Vector& a, const Vector& b)
+{
+    if (a.size()!=b.siz e())
+        throw Vector_siz e_mismatch{};
+    Vector res(a.size());
+    for (int i=0; i!=a.size(); ++i)
+        res[i]=a[i]+b[i];
+    return res;
+}
+// res needs to be copied to some place where caller can access
+// Caller
+void f(const Vector& x, const Vector& y, const Vector& z)
+{
+    Vector r;
+    // ...
+    r = x+y+z; // Needs to be copied twice! Bad for large vectors
+    // ...
+}
+// Need a move instead of a copy
+class Vector {
+    // ...
+    Vector(const Vector& a);    // copy constructor
+    Vector& operator=(const Vector& a); // copy assignment
+    Vector(Vector&& a);  // move constructor
+    Vector& operator=(Vector&& a); // move assignment
+};
+Vector::Vector(Vector&& a)
+    :elem{a.elem},  // "grab the elements" from a
+    sz{a.sz}
+{
+    a.elem = nullptr;   // now a has no elements
+    a.sz = 0;
+}
+
+// && means r-value reference - something that cannot be assigned to
+// Use case
+Vector f()
+{
+    Vector x(1000);
+    Vector y(1000);
+    Vector z(1000);
+    // ...
+    z = x; // copy 
+    y = std::move(x); // momve
+    // ...
+    return z; // move
+};
+
+// Supressing operations
+// Move or copy should not be done by superclass, since it may not be appropriate for sub classes
+// delete keyword to supress defailt operations
+class Shape {
+public:
+    Shape(const Shape&) =delete; // no copy
+    Shape& operator=(const Shape&) =delete;
+    Shape(Shape&&) =delete; // no move
+    Shape& operator=(Shape&&) =delete; 
+    
+    ~Shape();
+// ...
+};
