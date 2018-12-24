@@ -1,4 +1,4 @@
-/* All materail based on the book C++ Programming Language, 4th Edition, by Bjarne Stroustrup */
+/* All materrial based on the book C++ Programming Language, 4th Edition, by Bjarne Stroustrup */
 /* Basics - Presents the notation of C++, C++’s model of memory and computation, and the basic mechanisms for organizing code into a program. */
 
 
