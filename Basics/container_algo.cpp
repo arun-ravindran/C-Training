@@ -135,7 +135,7 @@ for (Entry ee; cin>>ee; ) // read from cin into ee
 
 
 
-//~~~~~Containers - vectors~~~~~~~~~~
+//~~~~~Containers - vectors (dynamic array)~~~~~~~~~~
 
 // Class with the main purpose of holding objects is commonly called a container
 
@@ -146,7 +146,7 @@ for (Entry ee; cin>>ee; ) // read from cin into ee
 vector<Entry> phone_book = { // Entry defined above
     {"David Hume",123456},
     {"Karl Popper",234567},
-    {"Bertrand Ar thur William Russell",345678}
+    {"Bertrand Arthur William Russell",345678}
 };
 
 // Element access through subscripting
@@ -199,4 +199,132 @@ int main()
 }
 
 
-//~~~~~Containers - lists~~~~~~~~~~
+//~~~~~Containers - lists (doubly linked list)~~~~~~~~~~
+
+// The standard library offers a doubly-linked list called list
+
+// Initialization 
+list<Entry> phone_book = {
+    {"David Hume",123456},
+    {"Karl Popper",234567},
+    {"Bertrand Arthur William Russell",345678}
+};
+
+// Accessing list elements using range loop
+int get_number(const string& s)
+{
+    for (const auto& x : phone_book)
+        if (x.name==s)
+            return x.number;
+    return 0; // use 0 to represent "number not found"
+}
+
+// Accesssing list elements using an iterator
+int get_number(const string& s)
+{
+    for (auto p = phone_book.begin(); p!=phone_book.end(); ++p)
+        if (p−>name==s)
+    return p−>number;
+    return 0; // use 0 to represent "number not found"
+}
+
+// Iterator is an object that allows access to an element
+// all containers have a begin() and end() methods that an iterator pointing to the first and beyond last element
+// Depending on the container, the iterator can be moved forward (++) and backward (--)
+// Here, p is of type list<Entry>::iterator
+
+
+// Inserting and removing elements
+void f(const Entry& ee, list<Entry>::iterator p, list<Entry>::iterator q)
+{
+    phone_book.insert(p,ee);    // add ee before the element referred to by p
+    phone_book.erase(q);    // remove the element referred to by q
+}
+
+
+
+//~~~~~Containers - map (binary search tree)~~~~~~~~~~
+
+// Maps store elements as (key, value) pairs
+// Elemeents are stored in order
+// Specific implementation is a red-black tree
+
+// Initialization
+map<string,int> phone_book {
+    {"David Hume",123456},
+    {"Karl Popper",234567},
+    {"Bertrand Arthur William Russell",345678}
+};
+
+// Insert a key, value pair
+void put_number(const string& s, int& i)
+{
+    phone_book.insert(std::pair<string,int>(s,i))
+}
+
+// Find value for key - find method returns an iterator or map::end otherwise
+int get_number(const string& s)
+{
+    return phone_book.find(s)->second; 
+}
+
+
+//~~~~~Containers - unordered_map (hashtable)~~~~~~~~~~
+
+// unordered_maps store elements as (key, value) pairs
+// Elemeents are not stored in order
+// Default hash functions provided for strings. Possible to supply custom hash functions
+
+
+// Initialization
+unordered_map<string,int> phone_book {
+    {"David Hume",123456},
+    {"Karl Popper",234567},
+    {"Bertrand Arthur William Russell",345678}
+};
+
+// Insert and find - identical code to map
+
+// Use custom hashes with function objects
+int main() 
+{
+    using name = pair<string, string>;
+    struct hash_name { //custom hash function object
+        size_t operator()(const name &n ) const
+        {
+            return hash<string>()(n.first) ^ hash<string>()(n.second);
+        }
+    };
+
+    unordered_map<name,int, hash_name> phone_book {
+        {name("David", "Hume"),123456},
+        {name("Karl", "Popper"),234567},
+        {name("Bertrand", "Russell"),345678}
+    };
+    for (auto entry: phone_book){
+        cout << entry.first.first << " " << entry.first.second << " " << entry.second << endl;
+    }
+}
+
+
+// Useful standard containers
+
+// vector<T> A dynamic array
+// list<T> A doubly-linked list
+// forward_list<T> A singly-linked list
+// deque<T> A double-ended queue
+// set<T> A set - only keys with no repitions
+// multiset<T> - A set in which a key can occur many times
+// map<K,V> - Binary search tree
+// multimap<K,V> - A map in which a key can occur many times 
+// unordered_map<K,V> - Hash table
+// unordered_multimap<K,V> - Hash table in which a key can occur many times
+// unordered_set<T> - Hash table of only keys 
+// unordered_multiset<T> - Hash table where a key can occur many times
+
+// Methods supported by the containers are semnatically uniform
+
+// begin() and end() give iterators to the first and one-beyond-the-last elements, respectively.
+// push_back() can be used (efficiently) to add elements to the end of a vector, forward_list, list etc. 
+// size() returns the number of elements
+
