@@ -309,22 +309,197 @@ int main()
 
 // Useful standard containers
 
-// vector<T> A dynamic array
-// list<T> A doubly-linked list
-// forward_list<T> A singly-linked list
-// deque<T> A double-ended queue
-// set<T> A set - only keys with no repitions
-// multiset<T> - A set in which a key can occur many times
-// map<K,V> - Binary search tree
-// multimap<K,V> - A map in which a key can occur many times 
-// unordered_map<K,V> - Hash table
-// unordered_multimap<K,V> - Hash table in which a key can occur many times
-// unordered_set<T> - Hash table of only keys 
-// unordered_multiset<T> - Hash table where a key can occur many times
+vector<T> // A dynamic array
+list<T>  // A doubly-linked list
+forward_list<T> // A singly-linked list
+deque<T> // A double-ended queue
+set<T> // A set - only keys with no repitions
+multiset<T> // A set in which a key can occur many times
+map<K,V> // Binary search tree
+multimap<K,V> // A map in which a key can occur many times 
+unordered_map<K,V> // Hash table
+unordered_multimap<K,V> // Hash table in which a key can occur many times
+unordered_set<T> // Hash table of only keys 
+unordered_multiset<T> // Hash table where a key can occur many times
 
 // Methods supported by the containers are semnatically uniform
 
 // begin() and end() give iterators to the first and one-beyond-the-last elements, respectively.
 // push_back() can be used (efficiently) to add elements to the end of a vector, forward_list, list etc. 
 // size() returns the number of elements
+
+
+
+//~~~~~~~Algorithms~~~~~~~~~~~~~
+
+// Sort and copy 
+
+struct less_than { //function object
+    bool operator<(const Entry& x, const Entry& y) 
+    {
+        return x.name < y.name; // order Entrys by their names
+    }    
+};
+
+list<Entry> f(vector<Entry>& vec) // Sort vector and copy to newlist
+{
+    list<Entry> lst;
+    sort(vec.begin(),vec.end(), less_than());
+    unique_copy(vec.begin(),vec.end(),back_inerter(lst)); // append to list - no explicit realloc!
+    return lst; // move constructor 
+}
+
+// Find
+bool has_c(const string& s, char c) // does s contain the character c?
+{
+    return find(s.begin(),s.end(),c)!=s.end(); // find returns an iterator
+}
+
+vector<string::iterator> find_all(string& s, char c) // find all occurences of c in s
+{
+    vector<string::iterator> res;
+    for (auto p = s.begin(); p!=s.end(); ++p)
+        if (∗p==c)
+            res.push_back(p);
+    return res; //vector iterators
+}
+
+void test() // test find_all
+{
+    string m {"Mary had a little lamb"};
+    for (auto p : find_all(m,'a'))
+        if (∗p!='a')
+    cerr << "a bug!\n";
+}
+
+// Generalize find_all to any container type C, and search type V 
+template<typename C, typename V>
+vector<typename C::iterator> find_all(C& c, V v)
+{
+    vector<typename C::iterator> res;
+    for (auto p = c.begin(); p!=c.end(); ++p)
+        if (∗p==v)
+            res.push_back(p);
+    return res;
+}
+
+// Simplify code  - using Iterator<T> = typename T::iterator;
+
+// Test generic find_all
+
+void test()
+{
+    string m {"Mary had a little lamb"};
+    for (auto p : find_all(m,'a')) // p is a string::iterator
+        if (∗p!='a')
+            cerr << "string bug!\n";
+
+    list<double> ld {1.1, 2.2, 3.3, 1.1};
+    for (auto p : find_all(ld,1.1))
+        if (∗p!=1.1)
+            cerr << "list bug!\n";
+
+    vector<string> vs { "red", "blue", "green", "green", "orange", "green" };
+    for (auto p : find_all(vs,"green"))
+        if (∗p!="green")
+            cerr << "vector bug!\n";
+
+    for (auto p : find_all(vs,"green"))
+        ∗p = "ver t";
+}
+
+// File I/O with I/O streams
+/* File I/O with I/O streams */
+
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <algorithm>
+#include <iterator>
+
+using namespace std; 
+
+vector<string> arguments(int argc, char* argv[]);
+
+int main(int argc, char* argv[])
+{
+
+    vector<string> args{arguments(argc, argv)};
+    assert(args.size() == 3)
+    
+    ifstream is {args[1]}; // input stream for file "from"
+    istream_iterator<string> ii {is}; // input iterator for stream
+    istream_iterator<string> eos {}; // input sentinel
+
+    ofstream os{args[2]}; // output stream for file "to"
+    ostream_iterator<string> oo {os,"\n"};  // output iterator for stream
+    // \n is delimiter. Each word is printed to a new line
+
+    vector<string> b {ii,eos}; // b is a vector initialized from input [ii:eos)
+    sort(b.begin(),b.end()); // sort the buffer
+    unique_copy(b.begin(),b.end(),oo); // copy buffer to output, discard replicated values
+
+    return !is.eof() || !os; // return error state 
+}
+
+
+vector<string> arguments(int argc, char* argv[])
+{
+    vector<string> res;
+    for (int i = 0; i!=argc; ++i)
+        res.push_back(argv[i]);
+    return res;
+
+}
+
+// A succint version with set
+set<string> b {istream_iterator<string>{is},istream_iterator<string>{}}; // read input
+copy(b.begin(),b.end(),ostream_iterator<string>{os,"\n"}); // copy to output
+
+// Use of predicates in modifying algoriithm behavior
+
+// Find if element in a map > 42
+struct Greater_than { // Predicate with function object
+    int val;
+    Greater_than(int v) : val{v} { }
+    bool operator()(const pair<string,int>& r) { return r.second>val; }
+};
+
+void f(map<string,int>& m)
+{
+    auto p = find_if(m.begin(),m.end(),Greater_than{42});
+    // ...
+}
+// Count number of elements > 42 using a lambda expression
+int cxx = count_if(m.begin(), m.end(), [](const pair<string,int>& r) { return r.second>42; });
+
+
+
+// Selected Standard Algorithms
+
+p=find(b,e,x) // is the first p in [ b : e ) so that ∗p==x
+p=find_if(b,e,f) // is the first p in [ b : e ) so that f(∗p)==true
+n=count(b,e,x) // is the number of elements ∗q in [ b : e ) so that ∗q==x
+n=count_if(b,e,f) // is the number of elements ∗q in [ b : e ) so that f(∗q,x)
+replace(b,e,v,v2) // Replace elements ∗q in [ b : e ) so that ∗q==v by v2
+replace_if(b,e,f,v2) // Replace elements ∗q in [ b : e ) so that f(∗q) by v2
+p=copy(b,e ,out) // Copy [ b : e ) to [ out : p )
+p=copy_if(b,e ,out,f) // Copy elements ∗q from [ b : e ) so that f(∗q) to [ out : p )
+p=unique_copy(b,e ,out) // Copy [ b : e ) to [ out : p ); don’t copy adjacent duplicates
+sort(b,e) // Sort elements of [ b : e ) using < as the sorting criterion
+sort(b,e,f) // Sort elements of [ b : e ) using f as the sorting criterion
+(p1,p2)=equal_range(b,e,v) // [ p1 : p2 ) is the subsequence of the sorted sequence [ b : e ) with the value v ; basically a binary search for v
+p=merge(b,e ,b2,e2,out) // Merge two sorted sequences [ b : e ) and [ b2 : e2 ) into [ out : p )
+
+
+
+
+
+
+
+
+
+
+
+
 
