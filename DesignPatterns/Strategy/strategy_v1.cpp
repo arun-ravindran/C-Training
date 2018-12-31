@@ -46,12 +46,55 @@ public:
     void getControl() {cntrl->control();}
 };
 
-class FurnaceModelv2 : public HeatingCoolingSystem { // v1 uses a on/off controller
+class FurnaceModelv2 : public HeatingCoolingSystem { // v2 uses a PI controller
 public:
     FurnaceModelv2() : HeatingCoolingSystem{new PI} {}// Constructor
     void description() {cout << "Furnace model v2" << endl;}
     void getControl() {cntrl->control();}
 };
+
+class FurnaceModelv3 : public HeatingCoolingSystem { // v3 uses a PID controller
+public:
+    FurnaceModelv3() : HeatingCoolingSystem{new PID} {}// Constructor
+    void description() {cout << "Furnace model v3" << endl;}
+    void getControl() {cntrl->control();}
+};
+
+class FurnaceModelv4 : public HeatingCoolingSystem { // v4 uses a MPC controller
+public:
+    FurnaceModelv4() : HeatingCoolingSystem{new MPC} {}// Constructor
+    void description() {cout << "Furnace model v4" << endl;}
+    void getControl() {cntrl->control();}
+};
+
+class ACModelv1 : public HeatingCoolingSystem { // v1 uses a on/off controller
+public:
+    ACModelv1() : HeatingCoolingSystem{new OnOff} {}// Constructor
+    void description() {cout << "AC model v1" << endl;}
+    void getControl() {cntrl->control();}
+};
+
+class ACModelv2 : public HeatingCoolingSystem { // v2 uses a PI controller
+public:
+    ACModelv2() : HeatingCoolingSystem{new PI} {}// Constructor
+    void description() {cout << "AC model v2" << endl;}
+    void getControl() {cntrl->control();}
+};
+
+class ACModelv3 : public HeatingCoolingSystem { // v3 uses a PID controller
+public:
+    ACModelv3() : HeatingCoolingSystem{new PID} {}// Constructor
+    void description() {cout << "AC model v3" << endl;}
+    void getControl() {cntrl->control();}
+};
+
+class ACModelv4 : public HeatingCoolingSystem { // v4 uses an MPC controller
+public:
+    ACModelv4() : HeatingCoolingSystem{new MPC} {}// Constructor
+    void description() {cout << "AC model v4" << endl;}
+    void getControl() {cntrl->control();}
+};
+
 
 int main()
 {
@@ -64,4 +107,36 @@ int main()
     f2.description();
     f2.commonSystemStuff();
     f2.getControl();
+
+    FurnaceModelv3 f3;
+    f3.description();
+    f3.commonSystemStuff();
+    f3.getControl();
+
+    FurnaceModelv4 f4;
+    f4.description();
+    f4.commonSystemStuff();
+    f4.getControl();
+
+    cout << endl;
+
+    ACModelv1 a1;
+    a1.description();
+    a1.commonSystemStuff();
+    a1.getControl();
+
+    ACModelv2 a2;
+    a2.description();
+    a2.commonSystemStuff();
+    a2.getControl();
+
+    ACModelv3 a3;
+    a3.description();
+    a3.commonSystemStuff();
+    a3.getControl();
+
+    ACModelv4 a4;
+    a4.description();
+    a4.commonSystemStuff();
+    a4.getControl();
 }
