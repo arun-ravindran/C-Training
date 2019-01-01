@@ -1,6 +1,7 @@
 /* Redesign of the naive code in no_stratey.cpp with the strategy pattern. The controller algorithm is abstracted */
 
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -31,9 +32,9 @@ public:
 
 class HeatingCoolingSystem { // Super class
 protected:
-    ControlAlgo* cntrl; // Needs to be pointer since ControlAlgo is not a concrete class
+    shared_ptr<ControlAlgo> cntrl; // Needs to be pointer since ControlAlgo is not a concrete class
 public:
-    HeatingCoolingSystem(ControlAlgo* c) : cntrl{c} {}
+    HeatingCoolingSystem(shared_ptr<ControlAlgo> c) : cntrl{c} {}
     virtual void description() {};
     virtual void commonSystemStuff() final {cout << "Implements behavior common to all systems" << endl;}
 
@@ -41,56 +42,56 @@ public:
 
 class FurnaceModelv1 : public HeatingCoolingSystem { // v1 uses a on/off controller
 public:
-    FurnaceModelv1() : HeatingCoolingSystem{new OnOff} {}// Constructor
+    FurnaceModelv1() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new OnOff)} {}// Constructor
     void description() {cout << "Furnace model v1" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class FurnaceModelv2 : public HeatingCoolingSystem { // v2 uses a PI controller
 public:
-    FurnaceModelv2() : HeatingCoolingSystem{new PI} {}// Constructor
+    FurnaceModelv2() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new PI)} {}// Constructor
     void description() {cout << "Furnace model v2" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class FurnaceModelv3 : public HeatingCoolingSystem { // v3 uses a PID controller
 public:
-    FurnaceModelv3() : HeatingCoolingSystem{new PID} {}// Constructor
+    FurnaceModelv3() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new PID)} {}// Constructor
     void description() {cout << "Furnace model v3" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class FurnaceModelv4 : public HeatingCoolingSystem { // v4 uses a MPC controller
 public:
-    FurnaceModelv4() : HeatingCoolingSystem{new MPC} {}// Constructor
+    FurnaceModelv4() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new MPC)} {}// Constructor
     void description() {cout << "Furnace model v4" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class ACModelv1 : public HeatingCoolingSystem { // v1 uses a on/off controller
 public:
-    ACModelv1() : HeatingCoolingSystem{new OnOff} {}// Constructor
+    ACModelv1() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new OnOff)} {}// Constructor
     void description() {cout << "AC model v1" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class ACModelv2 : public HeatingCoolingSystem { // v2 uses a PI controller
 public:
-    ACModelv2() : HeatingCoolingSystem{new PI} {}// Constructor
+    ACModelv2() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new PI)} {}// Constructor
     void description() {cout << "AC model v2" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class ACModelv3 : public HeatingCoolingSystem { // v3 uses a PID controller
 public:
-    ACModelv3() : HeatingCoolingSystem{new PID} {}// Constructor
+    ACModelv3() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new PID)} {}// Constructor
     void description() {cout << "AC model v3" << endl;}
     void getControl() {cntrl->control();}
 };
 
 class ACModelv4 : public HeatingCoolingSystem { // v4 uses an MPC controller
 public:
-    ACModelv4() : HeatingCoolingSystem{new MPC} {}// Constructor
+    ACModelv4() : HeatingCoolingSystem{shared_ptr<ControlAlgo>(new MPC)} {}// Constructor
     void description() {cout << "AC model v4" << endl;}
     void getControl() {cntrl->control();}
 };
