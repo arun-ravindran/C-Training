@@ -9,7 +9,7 @@ class DeviceInterface {
 public:
     virtual void on() = 0;
     virtual void applyInput() = 0;
-    virtual void measureOutput() = 0;
+    virtual string measureOutput() = 0;
     virtual void off() = 0;
 };
 
@@ -17,7 +17,7 @@ class Device : public DeviceInterface {
 public:
     void on() override {cout << "Turn on device" << endl;} 
     void applyInput() override{cout << "Apply input to device" << endl;}
-    void measureOutput() override {cout << "Measure output from device" << endl;}
+    string measureOutput() override {return "Output from devie";}
     void off() override {cout << "Turn off device" << endl;}
 };
 
@@ -33,7 +33,7 @@ void TestDevice::applyTest()
 {
     dev->on();
     dev->applyInput();
-    dev->measureOutput();
+    cout << dev->measureOutput() << endl;
     dev->off();
 }
 
@@ -42,7 +42,7 @@ public:
     virtual void on() = 0;
     virtual void applyLoInput() = 0;
     virtual void applyHiInput() = 0;
-    virtual void measureOutput() = 0;
+    virtual string measureOutput() = 0;
     virtual void off() = 0;
 };
 
@@ -51,7 +51,7 @@ public:
     void on() override {cout << "Turn on device" << endl;} 
     void applyLoInput() override {cout << "Apply low input to device" << endl;}
     void applyHiInput() override {cout << "Apply high input to device" << endl;}
-    void measureOutput() override {cout << "Measure output from device" << endl;}
+    string measureOutput() override {return "Output from device";}
     void off() override {cout << "Turn off device" << endl;}
 };
 
@@ -70,8 +70,9 @@ void TestNewDevice::applyTest()
     dev->applyLoInput();
     dev->measureOutput();
     dev->applyHiInput();
-    dev->measureOutput();
+    cout << dev->measureOutput() << endl;
     dev->off();
+
 }
 
 int main()
