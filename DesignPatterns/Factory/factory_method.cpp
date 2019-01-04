@@ -45,22 +45,28 @@ shared_ptr<BoardTest> BoardTestFactory::createBoardTest(string type) //Factory p
     return bt;
 
 }
+class TestBoard {
+protected:
+    shared_ptr<BoardTestFactory> factory;
+public:
+    TestBoard(shared_ptr<BoardTestFactory> bf) : factory(bf) {}
+    void test(string t);
+};
 
-shared_ptr<BoardTest> testBoard(string type) 
+void TestBoard::test(string type) 
 { 
-    BoardTestFactory factory;
-    shared_ptr<BoardTest> bt{factory.createBoardTest(type)};  
+    shared_ptr<BoardTest> bt{factory->createBoardTest(type)};  
     bt->applyConfig();
     bt->applyTest1();
     bt->applyTest2();
-
-    return bt;
-
 }
 
 int main() 
 {
-    testBoard("Intel");
-    testBoard("ARM");
-    testBoard("Power");
+    shared_ptr<BoardTestFactory> f; 
+    TestBoard t1{f}, t2{f}, t3{f};
+    t1.test("Intel");
+    t2.test("ARM");
+    t3.test("Power");
+
 }
