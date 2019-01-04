@@ -28,7 +28,7 @@ class PowerBoardTest : public BoardTest {
 
 class BoardTestFactory {
 public:
-    shared_ptr<BoardTest> createBoardTest(string type);
+    virtual shared_ptr<BoardTest> createBoardTest(string type);
 };
 
 shared_ptr<BoardTest> BoardTestFactory::createBoardTest(string type) //Factory produces objects
@@ -50,7 +50,7 @@ protected:
     shared_ptr<BoardTestFactory> factory;
 public:
     TestBoard(shared_ptr<BoardTestFactory> bf) : factory(bf) {}
-    void test(string t);
+    void test(string type);
 };
 
 void TestBoard::test(string type) 
@@ -63,7 +63,7 @@ void TestBoard::test(string type)
 
 int main() 
 {
-    shared_ptr<BoardTestFactory> f; 
+    shared_ptr<BoardTestFactory> f = shared_ptr<BoardTestFactory>(new BoardTestFactory); 
     TestBoard t1{f}, t2{f}, t3{f};
     t1.test("Intel");
     t2.test("ARM");
