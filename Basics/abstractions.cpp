@@ -34,7 +34,7 @@ public:
     void imag(double d) { im=d; }
     complex& operator+=(complex z) { re+=z.re , im+=z.im; return ∗this; } // add to re and im and return result
     complex& operator−=(complex z) { re−=z.re , im−=z.im; return ∗this; }
-    complex& operator∗=(complex);
+    complex& operator∗=(complex); // To be implemented
 };
 
 // Additional operations do not require direct access to representation. Written separately
@@ -43,6 +43,7 @@ complex operator−(complex a, complex b) { return a−=b; }
 complex operator−(complex a) { return {−a.real(), −a.imag()}; }
 complex operator∗(complex a, complex b) { return a∗=b; }
 complex operator/(complex a, complex b) { return a/=b; }
+
 
 bool operator==(complex a, complex b)   // equal
 {
@@ -57,7 +58,7 @@ bool operator!=(complex a, complex b) // not equal
 void f(complex z)
 {
     complex a {2.3}; // construct {2.3,0.0} from 2.3
-    complex b {1/a};
+    complex b {1/a}; // Copy constructor inserted by the compiler
     complex c {a+z∗complex{1,2.3}};
     // ...
     if (c != b) // operator!=(c,b)
@@ -103,7 +104,9 @@ void fct(int n)
 
 class Vector {
 public:
-    Vector(std::initializer_list<double>); // initialize with a list
+    Vector(std::initializer_list<double>); // initialize with a initializer list
+    // An object of type std::initializer_list<T> is a lightweight proxy object that provides
+    // access to an array of objects of type const T (#include <initializer_list>)
     // ...
 
 };
@@ -179,7 +182,7 @@ double& List_container::operator[](int i)
         if (i==0) return x;
     −−i;
     }
-    throw out_of_rang e("List container");
+    throw out_of_range("List container");
 }
 
 //Use case
@@ -189,7 +192,7 @@ void h()
     use(lc);
 }
 
-// Important: use(Container& ) has on idea if the argument is Vector_container or List_container
+// Important: use(Container& ) has no idea if the argument is Vector_container or List_container
 // It only knows the inteface defined by Container
 // Use_container need not be recompiled if derived classes change.
 // Caveat: objects now must be maipulated through references or pointers.
@@ -239,7 +242,7 @@ private:
     vector<Shape∗> eyes;
     Shape∗ mouth;
 public:
-    Smiley(Point p, int r) : Circle{p,r}, mouth{nullptr} { } //Initialize super class constructor
+    Smiley(Point p, int r) : Circle{p,r}, mouth{nullptr} { } //Initialize base class constructor
     ~Smiley()
     {
         delete mouth;
@@ -256,21 +259,21 @@ public:
 
 void Smiley::draw()
 {
-    Circle::draw();
+    Circle::draw(); // Calling base class method
     for (auto p : eyes)
         p−>draw();
     mouth−>draw();
 }
 
-// Note that subclasses maybe used as type superclasses (Smiley is a Shape)
-// So superclass destructors have to be virtual to call the appropriaate subclass destructor
+// Note that derived classes maybe used as type base class (Smiley is a Shape)
+// So base class destructors have to be virtual to call the appropriate derived class destructor
 
 // Two kinds of inhertiances - Interface inheritance. For example, inheriting from Shape
-// Immplmentation inheritance. For example, inheriting constructor from Circle
+// Implementation inheritance. For example, inheriting constructor from Circle
 
 // More examples of how class hiearchies are used
 // Read Shapes
-enum class Kind { circle, triangle , smiley };
+enum class Kind { circle, triangle, smiley };
 Shape∗ read_shape(istream& is) // read shape descriptions from input stream is
 {
     // ... read shape header from is and find its Kind k ...
@@ -334,7 +337,7 @@ void user()
 // The default meaning of copy is memberwise copy: copy each member
 // May not be appropriate for all object - for example, vector class define earlier
 
-// Eexample - for the complex class defined earlier
+// Example - for the complex class defined earlier
 
 void test(complex z1)
 {
@@ -371,14 +374,14 @@ public:
     int size() const;
 };
 
-// Deep copy by allocating space and then copying
+// Copy constructor - Deep copy by allocating space and then copying
 Vector::Vector(const Vector& a) : elem{new double[sz]}, sz{a.sz}
 {
     for (int i=0; i!=sz; ++i)
         elem[i] = a.elem[i];
 }
 
-// Deep copy. Also needs to delete existing elements of LHS
+// Copy Assiggment Deep copy. Also needs to delete existing elements of LHS
 Vector& Vector::operator=(const Vector& a)
 {
     double∗ p = new double[a.sz];
@@ -390,11 +393,12 @@ Vector& Vector::operator=(const Vector& a)
     return ∗this;
 }
 
+
 // Move constructor and move assignment
 Vector operator+(const Vector& a, const Vector& b)
 {
-    if (a.size()!=b.siz e())
-        throw Vector_siz e_mismatch{};
+    if (a.size()!=b.size())
+        throw Vector_size_mismatch{};
     Vector res(a.size());
     for (int i=0; i!=a.size(); ++i)
         res[i]=a[i]+b[i];
@@ -409,6 +413,11 @@ void f(const Vector& x, const Vector& y, const Vector& z)
     r = x+y+z; // Needs to be copied twice! Bad for large vectors
     // ...
 }
+
+// We need to create a copy in the new location. But the original object will never be read after the copying. 
+// We do not benefit from the fact that we created a second copy;
+// it is only that there was no other way to make our vector appear at the different memory location.
+
 // Need a move instead of a copy
 class Vector {
     // ...
@@ -425,6 +434,9 @@ Vector::Vector(Vector&& a)
     a.sz = 0;
 }
 
+// When move constructor is used by compiler - if compiler can detect that the source of the copy constructor is not going to be used 
+// (read from or written to) anymore, but only destroyed, compiler will pick the move constructor
+
 // && means r-value reference - something that cannot be assigned to
 // Use case
 Vector f()
@@ -434,13 +446,14 @@ Vector f()
     Vector z(1000);
     // ...
     z = x; // copy 
-    y = std::move(x); // momve
+    y = std::move(x); // move compiler hint
     // ...
     return z; // move
 };
 
+
 // Supressing operations
-// Move or copy should not be done by superclass, since it may not be appropriate for sub classes
+// Move or copy should not be done by base class, since it may not be appropriate for derived
 // delete keyword to supress defailt operations
 class Shape {
 public:
@@ -481,7 +494,7 @@ public:
 template<typename T>
 Vector<T>::Vector(int s)
 {
-    if (s<0) throw Negative_siz e{};
+    if (s<0) throw Negative_size{};
     elem = new T[s];
     sz = s;
 }
@@ -490,7 +503,7 @@ template<typename T>
 const T& Vector<T>::operator[](int i) const
 {
     if (i<0 || size()<=i)
-        throw out_of_rang e{"Vector::operator[]"};
+        throw out_of_range{"Vector::operator[]"};
     return elem[i];
 }
 
@@ -586,12 +599,12 @@ void f(const Vector<int>& vec, const list<string>& lst, int x, const string& s)
 // [&x](int a){ return a<x; } is called a lambda expression and generates a function object
 // [&x] is a capture list specifying that local names used (such as x ) will be passed by reference
 // x is the state, and a is the input to the function object
-// Use lamba expressions only to generate simple function objects
+// Use lambda expressions only to generate simple function objects
 
 // Use of lambdas and templates to make the drawing code seen earlier generic
 
 // Apply operation to all elements of a container
-// class indicates that C and oper have to be classes. Interchangable in C++17
+// class indicates that C and oper have to be classes. Typename and class interchangable in C++17
 template<class C, class Oper>
 void for_all(C& c, Oper op) // assume that C is a container of pointers
 {
@@ -611,12 +624,14 @@ void user()
 // Aliases - using keyword
 
 // using size_t = unsigned int; 
-// Similar to typedef
+// Similar to typedef, but compatible with templates
 // Defining new temmplate by binding some or all template arguments
 template<typename Key, typename Value>
 class Map {
 // ...
 };
+
 template<typename Value>
 using String_map = Map<string,Value>;
-String_map<int> m; // m is a Map<str ing,int>
+
+String_map<int> m; // m is a Map<string,int>

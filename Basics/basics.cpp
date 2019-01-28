@@ -1,4 +1,4 @@
-/* All materrial based on the book C++ Programming Language, 4th Edition, by Bjarne Stroustrup */
+/* All material based on the book C++ Programming Language, 4th Edition, by Bjarne Stroustrup */
 /* Basics - Presents the notation of C++, C++’s model of memory and computation, and the basic mechanisms for organizing code into a program. */
 
 
@@ -33,7 +33,7 @@ int main()
     print_square(1.234);
 }
 
-
+// Need to add an example of passing by reference
 
 
 
@@ -198,7 +198,7 @@ void increment()
 // A reference is similar to a pointer, except that you don’t need to use a prefix ∗ to access the value referred to by the reference.
 // Also, a reference cannot be made to refer to a different object after its initialization.
 
-// Declaratotr operators  &, *, []
+// Declarator operators  &, *, []
 T a[n]; // T[n]: array of n Ts
 T∗ p; // T*: pointer to T
 T& r; // T&: reference to T
@@ -211,7 +211,7 @@ int x = nullptr; // error : nullptr is a pointer not an integer
 
 // Check that pointer is valid - that is it pointing to something
 // count the number of occurrences of x in p[]
-// p is assumed to point to a zero-ter minated array of char (or to nothing)
+// p is assumed to point to a zero-terminated array of char (or to nothing)
 int count_x(char∗ p, char x) // p is a C style string
 {
     if (p==nullptr) return 0;
@@ -290,13 +290,22 @@ Vector v(6);
 double read_and_sum(int s)
 {
     Vector v(s); // make a vector of s elements
-    for (int i=0; i!=v.siz e(); ++i)
+    for (int i=0; i!=v.size(); ++i)
         cin>>v[i]; // read into elements
     double sum = 0;
-    for (int i=0; i!=v.siz e(); ++i)
+    for (int i=0; i!=v.size(); ++i)
         sum+=v[i]; // take the sum of the elements
     return sum;
 }
+
+// String class example usage
+string s;
+s1{"Hello World"};
+cout << s.size();
+s2{"Goodby World"};
+string s3 = s1 + s2; //s1.concat(s2)
+cout << s3;
+
 
 // A ‘‘function’’ with the same name as its class is called a constructor
 // Constructor is guaranteed to initialize the objects of its class
@@ -304,7 +313,7 @@ double read_and_sum(int s)
 //~~~~~~User Defined Types - Enumberations~~~~~~
 
 // User defined type used to enumberate values
-enum class Color { red, blue , green };
+enum class Color { red, blue, green };
 enum class Traffic_light { green, yellow, red };
 
 Color col = Color::red;
@@ -361,7 +370,7 @@ int main()
 
 // Exception handling is used wheen one part of a program detects a problem that it cannot resolve
 // Detecting raises an exception which is handled by another part
-// throw - deteting part uses to raise an exceptoin
+// throw - detecting part uses to raise an exceptoin
 // try - exception thrown from try blocks are passed to exception handlers
 // catch - exception handler. Stack is unwound
 // exception classes are used to pass informattion from throw to associated catch
@@ -381,7 +390,7 @@ try {
 
 double& Vector::operator[](int i)
 {
-    if (i<0 || size()<=i) throw out_of_rang e{"Vector::operator[]"};
+    if (i<0 || size()<=i) throw out_of_range{"Vector::operator[]"};
         return elem[i];
 }
 
@@ -389,9 +398,9 @@ void f(Vector& v)
 {
     // ...
     try { // exceptions here are handled by the handler defined below
-        v[v.siz e()] = 7; // tr y to access beyond the end of v
+        v[v.size()] = 7; // tr y to access beyond the end of v
     }
-    catch (out_of_rang e) { // oops: out_of_range error
+    catch (out_of_range) { // oops: out_of_range error
         // ... handle range error ...
     }
     // ...
